@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/lovoo/goka"
@@ -26,20 +25,4 @@ func outboundStatsProcessor(ctx goka.Context, msg interface{}) {
 	// emit new statistics without changing the key
 	ctx.Emit("outboundBTCStats", ctx.Key(), stats)
 
-}
-
-type Stats struct {
-	OutboundDegree int
-}
-
-type statsCodec struct{}
-
-func (c *statsCodec) Encode(value interface{}) ([]byte, error) {
-	return json.Marshal(value)
-}
-
-func (c *statsCodec) Decode(data []byte) (interface{}, error) {
-	var v Stats
-	err := json.Unmarshal(data, &v)
-	return v, err
 }

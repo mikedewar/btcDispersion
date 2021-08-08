@@ -27,7 +27,7 @@ func runBTCCollector(ctx context.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("subscribed")
+	log.Println("successfully subscribed to", u.String())
 
 	// create a new emitter that's going to take the data from the websocket and
 	// put it on kafka for us to play with downstream
