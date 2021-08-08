@@ -26,23 +26,27 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error creating sessions: %v", err)
 	}
+	log.Println("topic BTC is up and running")
 
 	// make sure the outboundBTC topic is up and running
 	err = tmgr.EnsureStreamExists("outboundBTC", 10)
 	if err != nil {
 		log.Fatalf("Error creating sessions: %v", err)
 	}
+	log.Println("topic outboundBTC is up and running")
 
 	// make sure the outboundBTCStats topic is up and running
 	err = tmgr.EnsureStreamExists("outboundBTCStats", 10)
 	if err != nil {
 		log.Fatalf("Error creating sessions: %v", err)
 	}
+	log.Println("topic outboundBTCStats is up and running")
 
 	// runBTCCollector talks to the blockchain.info websocket and populates the
 	// BTC topic in kafka. This simulates a topic we wouldn't have access to and
 	// se we don't pretend to control the key
 	go runBTCCollector(ctx)
+	log.Println("blockchain info websocket reader has been started")
 
 	// outboundGraph simply keys messages by the sending address
 	outboundGraph := NewOutboundBTC()
@@ -56,9 +60,10 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
+	log.Println("outboundBTC processor has been started")
 
 	// windowGraph builds an array of transactions by address
-	windowGraph := NewWindowState()
+	windowGraph := NewWindows()
 	p1, err := goka.NewProcessor(brokers, windowGraph)
 	if err != nil {
 		log.Fatal(err)
@@ -70,6 +75,7 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
+	log.Println("ountbound windows processor has been started")
 
 	// outboundStatsGraph emits aggregate statistics of each window
 	outboundStatsGraph := NewOutboundStats()
@@ -84,6 +90,8 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
+
+	log.Println("outbound stats processor has been started")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)

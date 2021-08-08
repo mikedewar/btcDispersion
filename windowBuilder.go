@@ -2,22 +2,21 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/lovoo/goka"
 )
 
-func NewWindowState() *goka.GroupGraph {
+func NewWindows() *goka.GroupGraph {
 
-	return goka.DefineGroup("windowState",
-		goka.Input("outboundBTC", new(txnCodec), windowStateProcessor),
+	return goka.DefineGroup("windows",
+		goka.Input("outboundBTC", new(txnCodec), windowsProcessor),
 		goka.Persist(new(windowCodec)),
 	)
 }
 
 // windowStateProcessor relies on the key of the message corresponding to the
 // source address of the transaction
-func windowStateProcessor(ctx goka.Context, msg interface{}) {
+func windowsProcessor(ctx goka.Context, msg interface{}) {
 
 	txn := msg.(Txn)
 
@@ -25,14 +24,12 @@ func windowStateProcessor(ctx goka.Context, msg interface{}) {
 	windowI := ctx.Value()
 
 	var window Window
+
+	// if it's empty, create a new one
 	window, ok := windowI.(Window)
 	if !ok {
-		log.Println("Making new window for address", ctx.Key())
 		newTxnWindow := make([]Txn, 0)
 		window.Txns = newTxnWindow
-	}
-	if ok {
-		log.Println("Got window for address", ctx.Key())
 	}
 	// add the new transaction to it
 	window.addTxn(txn)

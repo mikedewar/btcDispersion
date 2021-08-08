@@ -15,10 +15,7 @@ func runBTCCollector(ctx context.Context) {
 
 	// pick up transactions from blockchain.info
 	u, _ := url.Parse("wss://ws.blockchain.info/inv")
-	log.Println(u.String())
-
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
-
 	if err != nil {
 		log.Fatal(err)
 	}

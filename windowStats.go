@@ -10,7 +10,7 @@ import (
 func NewOutboundStats() *goka.GroupGraph {
 
 	return goka.DefineGroup("outboundStats",
-		goka.Input("windowState-table", new(windowCodec), outboundStatsProcessor),
+		goka.Input("windows-table", new(windowCodec), outboundStatsProcessor),
 		goka.Output("outboundBTCStats", new(statsCodec)),
 	)
 }
