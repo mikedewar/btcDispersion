@@ -4,6 +4,7 @@ import "encoding/json"
 
 type Stats struct {
 	OutboundDegree int
+	ValueFeatures  []float64
 }
 
 type statsCodec struct{}

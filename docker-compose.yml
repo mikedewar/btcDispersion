@@ -66,6 +66,7 @@ services:
 
   kafdrop:
     image: obsidiandynamics/kafdrop
+    container_name: kafdrop
     restart: "no"
     ports:
       - "9000:9000"
@@ -76,3 +77,63 @@ services:
       - "kafka1"
       - "kafka2"
       - "kafka3"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    container_name: es01
+    volumes:
+    - type: volume
+      source: elasticsearch
+      target: /usr/share/elasticsearch/data
+    environment:
+      discovery.type: "single-node"
+    ports:
+      - "9300:9300"
+      - "9200:9200"
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.14.0
+    container_name: logstash
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.14.0
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_HOSTS: "http://es01:9200"
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.14.0
+    container_name: filebeat
+    user: root
+    environment:
+      setup.kibana.host: "kibana:5601"
+      output.elasticsearch.hosts: '["elasticsearch:9200"]'
+    depends_on:
+      - kibana
+    volumes:
+      - type: bind
+        source: "./filebeat.docker.yml"
+        target: "/usr/share/filebeat/filebeat.yml"
+        read_only: true
+      - type: bind
+        source: "/var/lib/docker/containers"
+        target: "/var/lib/docker/containers"
+        read_only: true
+      - type: bind
+        source: "/var/run/docker.sock"
+        target: "/var/run/docker.sock"
+        read_only: true
+      
+volumes:
+  elasticsearch:

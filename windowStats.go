@@ -21,6 +21,7 @@ func outboundStatsProcessor(ctx goka.Context, msg interface{}) {
 	}
 	stats := Stats{
 		OutboundDegree: len(window.Txns),
+		ValueFeatures:  ValueFeatures(window.Txns),
 	}
 	// emit new statistics without changing the key
 	ctx.Emit("outboundBTCStats", ctx.Key(), stats)
