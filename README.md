@@ -12,3 +12,5 @@ run `go build && ./btcDispersion` to run the websocket client and the data
 processors.
 
 visit kafdrop at `localhost:9000` to see the topics and data
+
+.
