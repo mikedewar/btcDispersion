@@ -6,11 +6,9 @@ creates a stream of aggregated statistics about those windows.
 # Getting Started
 
 run `docker compose up` to start kafka with three brokers, zookeeper, and
-kafdrop.
+kafdrop, along with elasticsearch, logstash, kibana and filebeat.
 
 run `go build && ./btcDispersion` to run the websocket client and the data
 processors.
 
 visit kafdrop at `localhost:9000` to see the topics and data
-
-.
