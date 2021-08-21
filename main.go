@@ -2,16 +2,21 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
 	"os/signal"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/lovoo/goka"
 )
 
 var (
-	brokers = []string{"localhost:19092", "localhost:29092", "localhost:39092"}
+	brokers = []string{"kafka1:9092", "kafka2:9092", "kafka3:9092"}
 )
+
+func init() {
+	log.SetFormatter(&log.JSONFormatter{})
+}
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())

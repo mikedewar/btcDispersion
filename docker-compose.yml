@@ -134,6 +134,18 @@ services:
         source: "/var/run/docker.sock"
         target: "/var/run/docker.sock"
         read_only: true
+
+  btcdispersion:
+    build: 
+      context: .
+      labels: 
+        - "co.elastic.logs/enabled=true"
+        - "co.elastic.logs/json.keys_under_root=false"
+    container_name: btcdispersion
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
       
 volumes:
   elasticsearch:
