@@ -1,16 +1,34 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/montanaflynn/stats"
 )
 
-func ValueFeatures(w []Txn) []float64 {
+type Features struct {
+	sumValue    float64
+	meanValue   float64
+	medianValue float64
+	degree      float64
+}
 
-	var sumValue float64 // total value
-	var meanValue float64
-	var medianValue float64
+type featuresCodec struct{}
+
+func (c *featuresCodec) Encode(value interface{}) ([]byte, error) {
+	return json.Marshal(value)
+}
+
+func (c *featuresCodec) Decode(data []byte) (interface{}, error) {
+	var v Features
+	err := json.Unmarshal(data, &v)
+	return v, err
+}
+
+func CalcFeatures(w []Txn) *Features {
+
+	features := new(Features)
 
 	var err error
 
@@ -20,26 +38,20 @@ func ValueFeatures(w []Txn) []float64 {
 		values[i] = float64(txn.X.Out[0].Value)
 	}
 
-	sumValue, err = stats.Sum(values)
+	features.sumValue, err = stats.Sum(values)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	meanValue, err = stats.Mean(values)
+	features.meanValue, err = stats.Mean(values)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	medianValue, err = stats.Median(values)
+	features.medianValue, err = stats.Median(values)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	features := make([]float64, 3)
-
-	features[0] = sumValue
-	features[1] = meanValue
-	features[2] = medianValue
 
 	return features
 

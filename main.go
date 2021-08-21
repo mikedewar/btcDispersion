@@ -4,7 +4,9 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"time"
 
+	"github.com/jpillora/backoff"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/lovoo/goka"
@@ -21,9 +23,20 @@ func init() {
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	tmgr, err := goka.NewTopicManager(brokers, goka.DefaultConfig(), goka.NewTopicManagerConfig())
-	if err != nil {
-		log.Fatalf("error creating topic manager: %v", err)
+	b := &backoff.Backoff{}
+
+	var tmgr goka.TopicManager
+	var err error
+
+	for {
+		tmgr, err = goka.NewTopicManager(brokers, goka.DefaultConfig(), goka.NewTopicManagerConfig())
+		if err != nil {
+			d := b.Duration()
+			log.Info("error creating topic manager:", err, ". Reconnecting in ", d)
+			time.Sleep(d)
+		} else {
+			break
+		}
 	}
 
 	// make sure the BTC topic is up and running

@@ -12,7 +12,7 @@ func NewOutboundStats() *goka.GroupGraph {
 
 	return goka.DefineGroup("outboundStats",
 		goka.Input("windows-table", new(windowCodec), outboundStatsProcessor),
-		goka.Output("outboundBTCStats", new(statsCodec)),
+		goka.Output("outboundBTCStats", new(featuresCodec)),
 	)
 }
 
@@ -23,12 +23,11 @@ func outboundStatsProcessor(ctx goka.Context, msg interface{}) {
 	if !ok {
 		ctx.Fail(fmt.Errorf("couldn't convert value to Window"))
 	}
-	stats := Stats{
-		OutboundDegree: len(window.Txns),
-		ValueFeatures:  ValueFeatures(window.Txns),
-	}
+
+	features := CalcFeatures(window.Txns)
+
 	// emit new statistics without changing the key
-	ctx.Emit("outboundBTCStats", ctx.Key(), stats)
+	ctx.Emit("outboundBTCStats", ctx.Key(), features)
 
 	log.WithFields(log.Fields{"elapsed": time.Since(t), "processor": "outboundStats"}).Info("outboundStats complete")
 
